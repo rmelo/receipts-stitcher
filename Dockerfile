@@ -20,5 +20,7 @@ ENV	PATH "$PATH:/opt/receipts-stitcher/Stitcher/build"
 
 WORKDIR /opt/receipts-stitcher
 
-CMD python main.py
+RUN pip install -r requirements.txt
 
+ENTRYPOINT ["python"] 
+CMD ["app.py"]

@@ -19,4 +19,10 @@ If you want access bash of your container, you use follow command:
 docker run -it <your_image_name> bash
 ``` 
 
+## Running the app
+
+```
+python main.py
+```
+
 This repo is maitained by rmelo <rdg.melo@gmail.com>
