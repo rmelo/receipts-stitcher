@@ -3,5 +3,6 @@ services:
  web:
   container_name: "stitcher"
   build: .
+  image: stitcher
   ports:
     - "5000:5000"
