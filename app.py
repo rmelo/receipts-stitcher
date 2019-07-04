@@ -1,6 +1,6 @@
 # flask_web/app.py
 
-from flask import Flask, request
+from flask import Flask, request, Response, json, url_for
 from werkzeug import secure_filename
 import os
 import uuid
@@ -16,10 +16,20 @@ def hello():
 
 @app.route('/uploads', methods=['POST'])
 def create_upload():
-    folder = uuid.uuid4().hex
-    os.makedirs('./upload/'+folder)
-    return folder
+
+    upload_id = uuid.uuid4().hex
+    os.makedirs('./upload/'+upload_id)
     
+    data = {
+        'upload_id': upload_id
+    }
+    
+    js = json.dumps(data)
+
+    resp = Response(js, status=201, mimetype='application/json')
+    resp.headers['Link'] = url_for('upload', upload_id = upload_id, _external=True)
+
+    return resp
 
 @app.route('/uploads/<string:upload_id>', methods = ['POST'])
 def upload(upload_id):
@@ -32,7 +42,7 @@ def upload(upload_id):
     folder_path = os.path.join('./upload', upload_id)
 
     if(os.path.exists(folder_path)==False):
-        return 'Upload doens\'t exists', 400
+        return 'Upload doesn\'t exists', 400
 
     last_count = len(glob.glob(os.path.join(folder_path,'*'))) + 1
     file_name = f'part_{last_count}{os.path.splitext(file.filename)[1]}'
