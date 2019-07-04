@@ -7,9 +7,9 @@ import uuid
 import glob
 
 app = Flask(__name__)
+UPLOAD_PATH='./uploads'
 
 print('Starting server...')
-
 
 @app.route("/")
 def hello():
@@ -20,7 +20,7 @@ def hello():
 def create_upload():
 
     upload_id = uuid.uuid4().hex
-    os.makedirs('./upload/'+upload_id)
+    os.makedirs(os.path.join(UPLOAD_PATH, upload_id))
 
     data = {
         'upload_id': upload_id
@@ -38,8 +38,7 @@ def create_upload():
 @app.route('/uploads', methods=['GET'])
 def get_uploads():
 
-    folder_path = './upload'
-    folders = [os.path.basename(f) for f in glob.glob(os.path.join(folder_path, '**'))]
+    folders = [os.path.basename(f) for f in glob.glob(os.path.join(UPLOAD_PATH, '**'))]
 
     return Response(json.dumps(folders), status=200, mimetype='application/json')
 
@@ -47,21 +46,21 @@ def get_uploads():
 @app.route('/uploads/<string:upload_id>', methods=['POST'])
 def upload(upload_id):
 
-    try:
-        file = request.files['file']
-    except:
-        return 'No file uploaded'
-
-    folder_path = os.path.join('./upload', upload_id)
-
+    folder_path = os.path.join(UPLOAD_PATH, upload_id)
     if(os.path.exists(folder_path) == False):
         return 'Upload doesn\'t exists', 400
 
-    last_count = len(glob.glob(os.path.join(folder_path, '*'))) + 1
-    file_name = f'part_{last_count}{os.path.splitext(file.filename)[1]}'
-    file_path = os.path.join(folder_path, file_name)
+    uploaded_files = request.files.getlist('file[]')
 
-    file.save(file_path)
+    for file in uploaded_files:
+        file_path = os.path.join(folder_path, file.filename)
+        file.save(file_path)
+
+    # last_count = len(glob.glob(os.path.join(folder_path, '*'))) + 1
+    # file_name = f'part_{last_count}{os.path.splitext(file.filename)[1]}'
+    # file_path = os.path.join(folder_path, file_name)
+
+    # file.save(file_path)
 
     return '', 201
 
