@@ -21,8 +21,10 @@ def response_json(data, status=200):
 def response_error(message, status=400):
     return response_json({'message': message}, status)
 
+
 def upload_folder_path(upload_id):
     return os.path.join(UPLOAD_PATH, upload_id)
+
 
 def upload_exists(fn):
     @wraps(fn)
@@ -47,15 +49,17 @@ def hello():
 def create_upload():
 
     upload_id = uuid.uuid4().hex
-    os.makedirs(upload_folder_path(upload_id))
+    folder_path = upload_folder_path(upload_id)
+    os.makedirs(folder_path)
 
-    data = {'upload_id': upload_id}
+    link = url_for('upload', upload_id=upload_id, _external=True)
+
+    data = {'upload_id': upload_id, 'link': link}
 
     resp = response_json(data, 201)
 
-    resp.headers['Link'] = url_for(
-        'upload', upload_id=upload_id, _external=True)
-
+    resp.headers['Link'] = link
+    
     return resp
 
 
@@ -93,11 +97,18 @@ def upload(upload_id):
 @upload_exists
 def stitch(upload_id):
 
-    folder_path = os.path.join(UPLOAD_PATH, upload_id)
-
+    folder_path = upload_folder_path(upload_id)
     path_pattern = os.path.join(folder_path, '*')
+    files = os.listdir(folder_path)
 
-    cmd = f'stitcher Default target-receipt.jpeg {path_pattern}'
+    if(len(files) < 2):
+        return response_error('To peform a stitch, you must upload 2 images at least.')
+
+    file_ext = os.path.splitext(files[0])[1]
+
+    file_result_path = os.path.join(folder_path, f'result{file_ext}')
+
+    cmd = f'stitcher Default {file_result_path} {path_pattern}'
 
     print(cmd)
 
@@ -106,6 +117,7 @@ def stitch(upload_id):
         return '', 200
     except subprocess.CalledProcessError:
         return response_error('There was an error - command exited with non-zero code', 500)
+
 
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0')

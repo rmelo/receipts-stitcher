@@ -106,6 +106,6 @@ venv.bak/
 # MacOS dirs
 .DS_Store
 
-/uploads/**/*
+.uploads
 
 ./vscode/**/*
