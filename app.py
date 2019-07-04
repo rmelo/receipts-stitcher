@@ -5,6 +5,7 @@ from werkzeug import secure_filename
 import os
 import uuid
 import glob
+import subprocess
 
 app = Flask(__name__)
 UPLOAD_PATH='./uploads'
@@ -56,14 +57,25 @@ def upload(upload_id):
         file_path = os.path.join(folder_path, file.filename)
         file.save(file_path)
 
-    # last_count = len(glob.glob(os.path.join(folder_path, '*'))) + 1
-    # file_name = f'part_{last_count}{os.path.splitext(file.filename)[1]}'
-    # file_path = os.path.join(folder_path, file_name)
-
-    # file.save(file_path)
-
     return '', 201
+
+@app.route('/uploads/<string:upload_id>/stitch', methods=['POST'])
+def stitch(upload_id):
+
+    folder_path = os.path.join(UPLOAD_PATH, upload_id)
+    if(os.path.exists(folder_path) == False):
+        return 'Upload doesn\'t exists', 400
+
+    path_pattern = os.path.join(folder_path, '*')
+
+    cmd = f'stitcher Default target-receipt.jpeg {path_pattern}'
+
+    print(cmd)
+
+    subprocess.run([cmd], shell=True)
+
+    return '', 200
 
 
 if __name__ == "__main__":
-    app.run(debug=False, host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0')
