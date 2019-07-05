@@ -7,7 +7,7 @@ services:
     ports:
       - 8080:5000
     environment:
-      - FLEX_DEBUG=1
+      - FLASK_DEBUG=1
     networks:
       my-network:
         aliases:

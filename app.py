@@ -8,7 +8,7 @@ import glob
 import subprocess
 from functools import wraps
 
-app = Flask(__name__)
+application = Flask(__name__)
 UPLOAD_PATH = './uploads'
 
 print('Starting server...')
@@ -40,12 +40,12 @@ def upload_exists(fn):
     return decorator_function
 
 
-@app.route("/")
+@application.route("/")
 def hello():
     return "Stitcher API"
 
 
-@app.route('/uploads', methods=['POST'])
+@application.route('/uploads', methods=['POST'])
 def create_upload():
 
     upload_id = uuid.uuid4().hex
@@ -63,7 +63,7 @@ def create_upload():
     return resp
 
 
-@app.route('/uploads', methods=['GET'])
+@application.route('/uploads', methods=['GET'])
 def get_uploads():
 
     folders = [os.path.basename(f) for f in glob.glob(
@@ -75,7 +75,7 @@ def get_uploads():
     return response_json(data)
 
 
-@app.route('/uploads/<string:upload_id>', methods=['POST'])
+@application.route('/uploads/<string:upload_id>', methods=['POST'])
 @upload_exists
 def upload(upload_id):
 
@@ -93,7 +93,7 @@ def upload(upload_id):
     return '', 201
 
 
-@app.route('/uploads/<string:upload_id>/stitch', methods=['POST'])
+@application.route('/uploads/<string:upload_id>/stitch', methods=['POST'])
 @upload_exists
 def stitch(upload_id):
 
@@ -120,4 +120,4 @@ def stitch(upload_id):
 
 
 if __name__ == "__main__":
-    app.run()
+    application.run()
