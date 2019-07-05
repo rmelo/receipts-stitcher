@@ -22,5 +22,4 @@ WORKDIR /opt/receipts-stitcher
 
 RUN pip install -r requirements.txt
 
-ENTRYPOINT ["python"] 
-CMD ["app.py"]
+CMD flask run --host=0.0.0.0

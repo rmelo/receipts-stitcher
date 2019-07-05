@@ -1,8 +1,26 @@
-version: '2'
+version: '3'
 services:
- web:
-  container_name: "stitcher"
-  build: .
-  image: stitcher
-  ports:
-    - "5000:5000"
+  web:
+    image: stitcher
+    container_name: flask
+    build: .
+    ports:
+      - 8080:5000
+    environment:
+      - FLEX_DEBUG=1
+    networks:
+      my-network:
+        aliases:
+          - flask-app
+  nginx:
+    image: nginx:1.13.7
+    container_name: nginx
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - my-network
+
+networks:
+  my-network:
