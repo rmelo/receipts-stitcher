@@ -22,4 +22,4 @@ WORKDIR /opt/receipts-stitcher
 
 RUN pip install -r requirements.txt
 
-CMD python app.py
+CMD uwsgi --ini app.ini
