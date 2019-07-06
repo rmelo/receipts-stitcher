@@ -1,7 +1,7 @@
 FROM python:3
 MAINTAINER rmelo <rdg.melo@gmail.com>
 
-RUN 	apt-get -y update &&\
+RUN apt-get -y update &&\
 	apt-get -y upgrade &&\ 
 	apt-get install -y build-essential cmake &&\
 	apt-get install -y libopencv-dev &&\
@@ -22,4 +22,4 @@ WORKDIR /opt/receipts-stitcher
 
 RUN pip install -r requirements.txt
 
-CMD flask run
+CMD python app.py

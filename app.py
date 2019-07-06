@@ -1,6 +1,6 @@
 # flask_web/app.py
 
-from flask import Flask, request, Response, json, url_for
+from flask import Flask, request, Response, json, url_for, send_from_directory
 from werkzeug import secure_filename
 import os
 import uuid
@@ -8,8 +8,11 @@ import glob
 import subprocess
 from functools import wraps
 
-application = Flask(__name__)
 UPLOAD_PATH = './uploads'
+STATIC_PATH = './static'
+STATIC_URL_PATH = '/public'
+
+application = Flask(__name__, static_url_path=STATIC_URL_PATH)
 
 print('Starting server...')
 
@@ -59,7 +62,7 @@ def create_upload():
     resp = response_json(data, 201)
 
     resp.headers['Link'] = link
-    
+
     return resp
 
 
@@ -93,6 +96,15 @@ def upload(upload_id):
     return '', 201
 
 
+@application.route('/uploads/<string:upload_id>', methods=['GET'])
+@upload_exists
+def get_upload(upload_id):
+
+    folder_path = upload_folder_path(upload_id)
+
+    return '', 200
+
+
 @application.route('/uploads/<string:upload_id>/stitch', methods=['POST'])
 @upload_exists
 def stitch(upload_id):
@@ -106,18 +118,25 @@ def stitch(upload_id):
 
     file_ext = os.path.splitext(files[0])[1]
 
-    file_result_path = os.path.join(folder_path, f'result{file_ext}')
+    static_folder_path = os.path.join(STATIC_PATH, upload_id)
+
+    if(os.path.exists(static_folder_path) == False):
+        os.mkdir(static_folder_path)
+
+    file_result_path = os.path.join(static_folder_path, f'result{file_ext}')
+
+    public_path = os.path.join(STATIC_URL_PATH, upload_id, f'result{file_ext}')
 
     cmd = f'stitcher Default {file_result_path} {path_pattern}'
 
-    print(cmd)
+    print(f'Executing command: {cmd}')
 
     try:
         subprocess.check_call([cmd], shell=True)
-        return '', 200
+        return response_json({'location': public_path}, 201)
     except subprocess.CalledProcessError:
         return response_error('There was an error - command exited with non-zero code', 500)
 
 
 if __name__ == "__main__":
-    application.run()
+    application.run(debug=True, host='0.0.0.0')
