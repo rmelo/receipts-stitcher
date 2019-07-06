@@ -132,9 +132,13 @@ def stitch(upload_id):
     print(f'Executing command: {cmd}')
 
     try:
+        
         subprocess.check_call([cmd], shell=True)
+        print(f'Public path is {public_path}')
         return response_json({'location': public_path}, 201)
+
     except subprocess.CalledProcessError:
+
         return response_error('There was an error - command exited with non-zero code', 500)
 
 
