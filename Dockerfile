@@ -1,19 +1,27 @@
 FROM python:3
-MAINTAINER rmelo <rdg.melo@gmail.com>
 
+LABEL maintainer="rmelo <rdg.melo@gmail.com>"
+
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+
+# hadolint ignore=DL3008
 RUN apt-get -y update &&\
-	apt-get -y upgrade &&\ 
-	apt-get install -y build-essential cmake &&\
-	apt-get install -y libopencv-dev &&\
-	apt-get install -y vim
+	apt-get install -y --no-install-recommends build-essential cmake &&\
+	apt-get install -y --no-install-recommends libopencv-dev &&\
+	apt-get clean &&\ 
+	rm -rf /var/lib/apt/lists/*
 
-ADD . /opt/receipts-stitcher
+COPY . /opt/receipts-stitcher
+
+RUN chown -R appuser:appuser /opt/receipts-stitcher
 
 WORKDIR /opt/receipts-stitcher/Stitcher
 
-RUN	mkdir build &&\
-	cd ./build &&\
-	cmake .. &&\
+RUN	mkdir build
+
+WORKDIR /opt/receipts-stitcher/Stitcher/build
+
+RUN cmake .. &&\
 	make
 
 ENV	PATH "$PATH:/opt/receipts-stitcher/Stitcher/build"
@@ -22,4 +30,8 @@ WORKDIR /opt/receipts-stitcher
 
 RUN pip install -r requirements.txt
 
-CMD uwsgi --ini app.ini
+USER appuser
+
+ENTRYPOINT ["uwsgi"] 
+
+CMD ["--ini", "app.ini"]
