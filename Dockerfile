@@ -11,22 +11,22 @@ RUN apt-get -y update &&\
 	apt-get clean &&\ 
 	rm -rf /var/lib/apt/lists/*
 
-COPY . /opt/receipts-stitcher
+COPY . /opt/app
 
-RUN chown -R appuser:appuser /opt/receipts-stitcher
+RUN chown -R appuser:appuser /opt/app
 
-WORKDIR /opt/receipts-stitcher/Stitcher
+WORKDIR /opt/app/Stitcher
 
 RUN	mkdir build
 
-WORKDIR /opt/receipts-stitcher/Stitcher/build
+WORKDIR /opt/app/Stitcher/build
 
 RUN cmake .. &&\
 	make
 
-ENV	PATH "$PATH:/opt/receipts-stitcher/Stitcher/build"
+ENV	PATH "$PATH:/opt/app/Stitcher/build"
 
-WORKDIR /opt/receipts-stitcher
+WORKDIR /opt/app
 
 RUN pip install -r requirements.txt
 
