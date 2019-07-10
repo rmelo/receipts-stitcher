@@ -43,10 +43,12 @@ def upload_exists(fn):
     return decorator_function
 
 
+def url_join(*args):
+    return '/'.join(arg.strip('/') for arg in args)
+
 @application.route("/")
 def hello():
-    return "Stitcher API"
-
+    return 'Here is where the magic happens.'
 
 @application.route('/uploads', methods=['POST'])
 def create_upload():
@@ -125,14 +127,14 @@ def stitch(upload_id):
 
     file_result_path = os.path.join(static_folder_path, f'result{file_ext}')
 
-    public_path = os.path.join(STATIC_URL_PATH, upload_id, f'result{file_ext}')
+    public_path = url_join(request.host_url, STATIC_URL_PATH, upload_id, f'result{file_ext}')
 
     cmd = f'stitcher Default {file_result_path} {path_pattern}'
 
     print(f'Executing command: {cmd}')
 
     try:
-        
+
         subprocess.check_call([cmd], shell=True)
         print(f'Public path is {public_path}')
         return response_json({'location': public_path}, 201)
