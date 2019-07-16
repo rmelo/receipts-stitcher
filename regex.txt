@@ -1,0 +1,10 @@
+
+CPF consumidor
+(?<cpf>\d{3}.\d{3}.\d{3}-\d{2})
+
+
+Item-Cod-Desc
+^(?<seq>\d{3})\s*(?<sku>\d{13})\s*(?<desc>.*)$
+
+Item-Valor
+^(?<qtd>[\d|I])\s*un\s*X\s*(?<price>\d*,\d{2})\s(?<fee>\(\d*,\d{2}\))\s*=\s*(?<total>\d*,\d{2})
