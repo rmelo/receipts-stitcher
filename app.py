@@ -7,10 +7,13 @@ import uuid
 import glob
 import subprocess
 from functools import wraps
+from PIL import Image
+import pytesseract
 
 UPLOAD_PATH = './uploads'
 STATIC_PATH = './static'
 STATIC_URL_PATH = '/public'
+FILE_EXT = '.jpeg'
 
 application = Flask(__name__, static_url_path=STATIC_URL_PATH)
 
@@ -143,6 +146,15 @@ def stitch(upload_id):
 
         return response_error('There was an error - command exited with non-zero code', 500)
 
+@application.route('/uploads/<string:upload_id>/text', methods=['POST'])
+def text(upload_id):
+
+    static_folder_path = os.path.join(STATIC_PATH, upload_id)
+    file_result_path = os.path.join(static_folder_path, f'result{FILE_EXT}')
+
+    text = pytesseract.image_to_string(Image.open(file_result_path),"por")
+
+    return text
 
 if __name__ == "__main__":
     application.run(debug=True, host='0.0.0.0')
